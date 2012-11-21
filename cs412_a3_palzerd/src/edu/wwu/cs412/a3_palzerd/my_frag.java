@@ -8,11 +8,14 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class my_frag extends Fragment {
+public class my_frag extends Fragment{
     private Main myActivity = null;
     int mCurCheckPosition = 0;
 
@@ -36,6 +39,16 @@ public class my_frag extends Fragment {
  */
     }
 
+    private void setOnClickListeners(View v)
+    {
+    	Log.w(Main.TAG, "Set onclick listeners.");
+    	Button searchButton = (Button) v.findViewById(R.id.search_button);
+    	Button moreButton = (Button) v.findViewById(R.id.more_button);
+    	
+    	searchButton.setOnClickListener(my_click_listener);
+    	moreButton.setOnClickListener(my_click_listener);
+    }
+    
     @Override
     public void onAttach(Activity myActivity) {
     	Log.v(Main.TAG, "in TitlesFragment onAttach; activity is: " + myActivity);
@@ -53,18 +66,21 @@ public class my_frag extends Fragment {
     	}
     	else {
             Log.v(Main.TAG, "    myBundle is null");
-    	}
+    	}   	
     	super.onCreate(icicle);
         if (icicle != null) {
             // Restore last state for checked position.
             mCurCheckPosition = icicle.getInt("curChoice", 0);
         }
+        
     }
 
     @Override
     public View onCreateView(LayoutInflater myInflater, ViewGroup container, Bundle icicle) {
     	Log.v(Main.TAG, "in TitlesFragment onCreateView. container is " + container);
     	View view = myInflater.inflate(R.layout.fragment_ui, container);
+    	
+    	setOnClickListeners(view);
     	return view;
     	//return super.onCreateView(myInflater, container, icicle);
     }
@@ -153,4 +169,24 @@ public class my_frag extends Fragment {
     	super.onDetach();
     	myActivity = null;
     }
+    
+    OnClickListener my_click_listener = new OnClickListener() {
+	    public void onClick(View clickedView)
+	    {
+	    	switch(clickedView.getId())
+	    	{
+	    	case R.id.search_button:
+	    		Log.w(Main.TAG, "Firing Search.");
+	    	//	submitLoginInfo();
+	    		break;
+	    	case R.id.more_button:
+	    		Log.w(Main.TAG, "Firing More.");
+	    	//	createAccount();
+	    		break;
+	    	default:
+	    		Log.w(Main.TAG, "Firing unimplemented button event.");
+	    	}
+	    }
+    };    
+    
 }

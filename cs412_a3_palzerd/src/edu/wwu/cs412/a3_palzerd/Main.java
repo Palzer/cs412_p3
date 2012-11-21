@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -11,15 +14,26 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 
-public class Main extends Activity {
+public class Main extends Activity implements OnClickListener {
 	public static final String TAG = "Mini Twitter";
+	public int num_tweets = 25;
 
     public void onCreate(Bundle savedInstanceState) {
 		Log.v(TAG, "in MainActivity onCreate");
         super.onCreate(savedInstanceState);
 		FragmentManager.enableDebugLogging(true);
         setContentView(R.layout.main);
+        //setOnClickListeners();
     }
+    
+    /*private void setOnClickListeners()
+    {
+    	Button searchButton = (Button) findViewById(R.id.search_button);
+    	Button moreButton = (Button) findViewById(R.id.more_button);
+    	
+    	searchButton.setOnClickListener(this);
+    	moreButton.setOnClickListener(this);
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -37,6 +51,23 @@ public class Main extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    
+    public void onClick(View clickedView)
+    {
+    	switch(clickedView.getId())
+    	{
+    	case R.id.search_button:
+    		Log.w(Main.TAG, "Firing Search.");
+    	//	submitLoginInfo();
+    		break;
+    	case R.id.more_button:
+    		Log.w(Main.TAG, "Firing More.");
+    	//	createAccount();
+    		break;
+    	default:
+    		Log.w(Main.TAG, "Firing unimplemented button event.");
+    	}
     }
     
     @Override
@@ -80,6 +111,5 @@ public class Main extends Activity {
     public void onDestroy() {
 		Log.v(TAG, "in MainActivity onDestroy");
     	super.onDestroy();
-    }
-    
+    }    
 }
