@@ -1,6 +1,7 @@
 package edu.wwu.cs412.a3_palzerd;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -11,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class my_frag extends ListFragment {
+public class my_frag extends Fragment {
     private Main myActivity = null;
     int mCurCheckPosition = 0;
 
@@ -63,7 +64,9 @@ public class my_frag extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater myInflater, ViewGroup container, Bundle icicle) {
     	Log.v(Main.TAG, "in TitlesFragment onCreateView. container is " + container);
-    	return super.onCreateView(myInflater, container, icicle);
+    	View view = myInflater.inflate(R.layout.fragment_ui, container);
+    	return view;
+    	//return super.onCreateView(myInflater, container, icicle);
     }
     
     @Override
@@ -80,11 +83,13 @@ public class my_frag extends ListFragment {
         super.onActivityCreated(icicle);
 
         // Populate list with our static array of titles.
-        setListAdapter(new ArrayAdapter<String>(getActivity(),
+               
+        ListView lv = (ListView) getView().findViewById(R.id.listView1);
+        
+        lv.setAdapter(new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_list_item_1,
                 Shakespeare.TITLES));
-
-        ListView lv = getListView();
+        
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setSelection(mCurCheckPosition);
 
@@ -116,13 +121,13 @@ public class my_frag extends ListFragment {
         icicle.putInt("curChoice", mCurCheckPosition);
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int pos, long id) {
-    	Log.v(Main.TAG, "in TitlesFragment onListItemClick. pos = "
-    			+ pos);
-        //myActivity.showDetails(pos);
-    	mCurCheckPosition = pos;
-    }
+    //@Override
+    //public void onListItemClick(ListView l, View v, int pos, long id) {
+    //	Log.v(Main.TAG, "in TitlesFragment onListItemClick. pos = "
+    //			+ pos);
+    //    //myActivity.showDetails(pos);
+    //	mCurCheckPosition = pos;
+    //}
 
     @Override
     public void onStop() {

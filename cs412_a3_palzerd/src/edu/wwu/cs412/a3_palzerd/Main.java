@@ -3,6 +3,7 @@ package edu.wwu.cs412.a3_palzerd;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -24,6 +25,18 @@ public class Main extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.v(TAG, "in MainActivity onOptionsItemSelected. Selection = " + item );
+    	switch (item.getItemId()) {
+            case R.id.menu_settings:
+                //newGame();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     
     @Override
