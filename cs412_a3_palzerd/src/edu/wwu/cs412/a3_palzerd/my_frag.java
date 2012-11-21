@@ -1,7 +1,9 @@
 package edu.wwu.cs412.a3_palzerd;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -177,6 +179,9 @@ public class my_frag extends Fragment{
 	    	{
 	    	case R.id.search_button:
 	    		Log.w(Main.TAG, "Firing Search.");
+	    		FragmentManager fm = getFragmentManager();
+	    		search_diag my_search_diag = new search_diag();
+	    		my_search_diag.show(fm, "search frag");
 	    	//	submitLoginInfo();
 	    		break;
 	    	case R.id.more_button:
