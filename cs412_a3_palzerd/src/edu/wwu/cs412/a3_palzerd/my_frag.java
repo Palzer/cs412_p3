@@ -8,6 +8,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -16,6 +17,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -217,9 +219,10 @@ public class my_frag extends Fragment{
 	    }
     };
     
-    public ArrayList<Tweet> do_search(String search_string){
-    	Log.w(Main.TAG, "Going to search twitter");
+    public ArrayList<Tweet> do_search(String search_string) throws JSONException{
+    	Log.w(Main.TAG, "Going to search twitter with: " + search_string);
     	String search_url = "http://search.twitter.com/search.json?q=@" + search_string;
+    	Log.w(Main.TAG, "Going to search twitter with url: " + search_url);
     	
     	ArrayList <Tweet> tweets = new ArrayList <Tweet>();
     	
@@ -228,32 +231,52 @@ public class my_frag extends Fragment{
     	
     	ResponseHandler<String> responseHandler = new BasicResponseHandler();
     	
-    	String responseBody = null;
+    	String responseBody = "not changed";
     	try{
-    	  responseBody = client.execute(get,responseHandler);
+    		Log.v("TEST","going execute client with: " + get + ", and: " + responseHandler);
+    	  //responseBody = client.execute(get,responseHandler);
+    		responseBody = client.execute(get,responseHandler);
     	} catch(Exception ex){
-    	  ex.printStackTrace();
+    		Log.v("TEST","Exception: " + ex);
+    	  //ex.printStackTrace();
     	}
     	
     	JSONObject jsonObject = null;
     	JSONParser parser = new JSONParser();
     	
-    	try {
+    	try {Log.v("TEST","going to parse results from response: " + responseBody);
     	  Object obj = parser.parse(responseBody);
+    	  Log.v("TEST","going to put results in jsonobject");
     	  jsonObject=(JSONObject)obj;
     	}catch(Exception ex){
     	  Log.v("TEST","Exception: " + ex.getMessage());
     	}
     	   
     	JSONArray arr = null;
-    	   
-    	try {
+    	
+    	
+    	
+    	try {Log.v("TEST","going to get results from obj");
     	  Object j = jsonObject.get("results");
+    	  Log.v("TEST","going to assign json object to array");
     	  arr = (JSONArray)j;
+    	  Log.v("TEST","length of array is " + arr.length());
     	} catch(Exception ex){
     	  Log.v("TEST","Exception: " + ex.getMessage());
     	}
     	
+    	if (arr != null){
+	    	Log.v(Main.TAG,"going to loop through array");
+	    	for(int i = 0; i < arr.length(); i++) {
+	    		   JSONObject t = (JSONObject) arr.get(i);
+	    		   Tweet tweet = new Tweet(
+	    		     t.get("from_user").toString(),
+	    		     t.get("text").toString(),
+	    		     t.get("profile_image_url").toString()
+	    		   );
+	    		   tweets.add(tweet);
+	    		 }
+    	}
     	return tweets;
     }
     

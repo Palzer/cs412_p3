@@ -1,5 +1,7 @@
 package edu.wwu.cs412.a3_palzerd;
 
+import org.json.JSONException;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
@@ -47,7 +49,12 @@ public class Main extends Activity  {
     public void send_search(String search_string)
     {
     	Log.v(TAG, "Search to send is: " + search_string);
-    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
+    	try {
+			((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     @Override
@@ -92,5 +99,5 @@ public class Main extends Activity  {
 		Log.v(TAG, "in MainActivity onDestroy");
     	super.onDestroy();
     }
- 
+    
 }
