@@ -1,5 +1,16 @@
 package edu.wwu.cs412.a3_palzerd;
 
+import java.util.ArrayList;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -20,7 +31,18 @@ import android.widget.ListView;
 public class my_frag extends Fragment{
     private Main myActivity = null;
     int mCurCheckPosition = 0;
-
+    
+    public class Tweet {
+    	public String username;
+    	public String message;
+    	public String img_url;
+    	public Tweet (String username, String message, String img_url){
+    		this.username = username;
+    		this.message = message;
+    		this.img_url = img_url;
+    	}
+    }
+    
     @Override
     public void onInflate(AttributeSet attrs, Bundle icicle) {
     	Log.v(Main.TAG,
@@ -28,6 +50,7 @@ public class my_frag extends Fragment{
     	for(int i=0; i<attrs.getAttributeCount(); i++) {
             Log.v(Main.TAG, "    " + attrs.getAttributeName(i) +
             		" = " + attrs.getAttributeValue(i));
+            		
     	}
     	super.onInflate(attrs, icicle);
 /*    	
@@ -192,6 +215,46 @@ public class my_frag extends Fragment{
 	    		Log.w(Main.TAG, "Firing unimplemented button event.");
 	    	}
 	    }
-    };    
+    };
+    
+    public ArrayList<Tweet> do_search(String search_string){
+    	Log.w(Main.TAG, "Going to search twitter");
+    	String search_url = "http://search.twitter.com/search.json?q=@" + search_string;
+    	
+    	ArrayList <Tweet> tweets = new ArrayList <Tweet>();
+    	
+    	HttpClient client = new DefaultHttpClient();
+    	HttpGet get = new HttpGet(search_url);
+    	
+    	ResponseHandler<String> responseHandler = new BasicResponseHandler();
+    	
+    	String responseBody = null;
+    	try{
+    	  responseBody = client.execute(get,responseHandler);
+    	} catch(Exception ex){
+    	  ex.printStackTrace();
+    	}
+    	
+    	JSONObject jsonObject = null;
+    	JSONParser parser = new JSONParser();
+    	
+    	try {
+    	  Object obj = parser.parse(responseBody);
+    	  jsonObject=(JSONObject)obj;
+    	}catch(Exception ex){
+    	  Log.v("TEST","Exception: " + ex.getMessage());
+    	}
+    	   
+    	JSONArray arr = null;
+    	   
+    	try {
+    	  Object j = jsonObject.get("results");
+    	  arr = (JSONArray)j;
+    	} catch(Exception ex){
+    	  Log.v("TEST","Exception: " + ex.getMessage());
+    	}
+    	
+    	return tweets;
+    }
     
 }

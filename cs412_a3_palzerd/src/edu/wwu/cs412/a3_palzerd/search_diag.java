@@ -1,6 +1,8 @@
 package edu.wwu.cs412.a3_palzerd;
 
 import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,7 +19,8 @@ import android.widget.TextView.OnEditorActionListener;
 
 import android.widget.TextView;
 
-public class search_diag extends DialogFragment implements OnEditorActionListener{
+
+public class search_diag extends DialogFragment implements OnEditorActionListener,OnDismissListener{
 	
 	private EditText mEditText;
 
@@ -29,6 +32,7 @@ public class search_diag extends DialogFragment implements OnEditorActionListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        
     }
     
     @Override
@@ -48,9 +52,13 @@ public class search_diag extends DialogFragment implements OnEditorActionListene
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		Log.v(Main.TAG,"Action is " + actionId);
-		if (EditorInfo.IME_ACTION_DONE == actionId)
+		//if (EditorInfo.IME_ACTION_DONE == actionId)
+		if (0 == actionId)
 		{
-			Log.v(Main.TAG,"done editting search terms");
+			Log.v(Main.TAG,"done editting search terms: " + mEditText.getText().toString());
+			((Main) getActivity()).send_search(mEditText.getText().toString()); //do_search(mEditText.getText().toString());
+			dismiss();
+			return true;
 		}
 		return false;
 	}

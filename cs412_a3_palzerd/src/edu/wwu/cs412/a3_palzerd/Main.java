@@ -14,7 +14,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 
-public class Main extends Activity implements OnClickListener {
+public class Main extends Activity  {
 	public static final String TAG = "Mini Twitter";
 	public int num_tweets = 25;
 
@@ -25,15 +25,6 @@ public class Main extends Activity implements OnClickListener {
         setContentView(R.layout.main);
         //setOnClickListeners();
     }
-    
-    /*private void setOnClickListeners()
-    {
-    	Button searchButton = (Button) findViewById(R.id.search_button);
-    	Button moreButton = (Button) findViewById(R.id.more_button);
-    	
-    	searchButton.setOnClickListener(this);
-    	moreButton.setOnClickListener(this);
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,21 +44,10 @@ public class Main extends Activity implements OnClickListener {
         }
     }
     
-    public void onClick(View clickedView)
+    public void send_search(String search_string)
     {
-    	switch(clickedView.getId())
-    	{
-    	case R.id.search_button:
-    		Log.w(Main.TAG, "Firing Search.");
-    	//	submitLoginInfo();
-    		break;
-    	case R.id.more_button:
-    		Log.w(Main.TAG, "Firing More.");
-    	//	createAccount();
-    		break;
-    	default:
-    		Log.w(Main.TAG, "Firing unimplemented button event.");
-    	}
+    	Log.v(TAG, "Search to send is: " + search_string);
+    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
     }
     
     @Override
@@ -111,5 +91,6 @@ public class Main extends Activity implements OnClickListener {
     public void onDestroy() {
 		Log.v(TAG, "in MainActivity onDestroy");
     	super.onDestroy();
-    }    
+    }
+ 
 }
