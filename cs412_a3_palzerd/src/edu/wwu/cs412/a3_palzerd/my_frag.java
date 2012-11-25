@@ -7,16 +7,15 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
+import org.json.simple.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -27,7 +26,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 public class my_frag extends Fragment{
@@ -44,6 +42,43 @@ public class my_frag extends Fragment{
     		this.img_url = img_url;
     	}
     }
+    
+	private class search extends AsyncTask<String,Void,String> {
+		
+		@Override
+		protected String doInBackground(String... params) {
+			Log.v("TEST","params[0] is " + params[0]);
+			
+	    	HttpClient client = new DefaultHttpClient();
+	    	HttpGet get = new HttpGet(params[0]);
+	    	
+	    	ResponseHandler<String> responseHandler = new BasicResponseHandler();
+	    	
+	    	String responseBody = "not changed";
+	    	try{
+	    		Log.v("TEST ASYNC","going execute client with: " + get + ", and: " + responseHandler);
+	    	  //responseBody = client.execute(get,responseHandler);
+	    		responseBody = client.execute(get,responseHandler);
+	    	} catch(Exception ex){
+	    		Log.v("TEST ASYNC","Exception: " + ex);
+	    	  //ex.printStackTrace();
+	    	}
+			return responseBody;	    	
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+		    try {
+				finish_this(result);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	
+	        
+	        
+	}
     
     @Override
     public void onInflate(AttributeSet attrs, Bundle icicle) {
@@ -219,35 +254,27 @@ public class my_frag extends Fragment{
 	    }
     };
     
-    public ArrayList<Tweet> do_search(String search_string) throws JSONException{
+    public void do_search(String search_string){
     	Log.w(Main.TAG, "Going to search twitter with: " + search_string);
     	String search_url = "http://search.twitter.com/search.json?q=@" + search_string;
     	Log.w(Main.TAG, "Going to search twitter with url: " + search_url);
+    	search task = new search();    	
+    	task.execute(new String[] {search_url});
     	
+    }
+    
+    public ArrayList<Tweet> finish_search (String responseBody) throws JSONException{
+    	Log.w(Main.TAG, "Going to finish search with response");
     	ArrayList <Tweet> tweets = new ArrayList <Tweet>();
-    	
-    	HttpClient client = new DefaultHttpClient();
-    	HttpGet get = new HttpGet(search_url);
-    	
-    	ResponseHandler<String> responseHandler = new BasicResponseHandler();
-    	
-    	String responseBody = "not changed";
-    	try{
-    		Log.v("TEST","going execute client with: " + get + ", and: " + responseHandler);
-    	  //responseBody = client.execute(get,responseHandler);
-    		responseBody = client.execute(get,responseHandler);
-    	} catch(Exception ex){
-    		Log.v("TEST","Exception: " + ex);
-    	  //ex.printStackTrace();
-    	}
     	
     	JSONObject jsonObject = null;
     	JSONParser parser = new JSONParser();
     	
-    	try {Log.v("TEST","going to parse results from response: " + responseBody);
+    	try {
+		Log.v("TEST","going to parse results from response: " + responseBody);
     	  Object obj = parser.parse(responseBody);
-    	  Log.v("TEST","going to put results in jsonobject");
-    	  jsonObject=(JSONObject)obj;
+    	  Log.v("TEST","going to put results in jsonobject from " + obj);
+    	  jsonObject = (JSONObject) obj;
     	}catch(Exception ex){
     	  Log.v("TEST","Exception: " + ex.getMessage());
     	}
@@ -260,24 +287,37 @@ public class my_frag extends Fragment{
     	  Object j = jsonObject.get("results");
     	  Log.v("TEST","going to assign json object to array");
     	  arr = (JSONArray)j;
-    	  Log.v("TEST","length of array is " + arr.length());
     	} catch(Exception ex){
     	  Log.v("TEST","Exception: " + ex.getMessage());
     	}
     	
     	if (arr != null){
 	    	Log.v(Main.TAG,"going to loop through array");
-	    	for(int i = 0; i < arr.length(); i++) {
+	    	int i = 0;
+	    	boolean go = true;
+			//for(int i = 0; i < arr.length(); i++) {
+	    	while (go){
+	    		try{
 	    		   JSONObject t = (JSONObject) arr.get(i);
+	    		   Log.v("TESTLOOP","Element is: " + t);
 	    		   Tweet tweet = new Tweet(
 	    		     t.get("from_user").toString(),
 	    		     t.get("text").toString(),
 	    		     t.get("profile_image_url").toString()
 	    		   );
 	    		   tweets.add(tweet);
-	    		 }
+	    		   i = i + 1;
+	    		} catch(Exception ex){
+	    			Log.v("TEST","done looping");
+	    			go = false;
+	    		}
+	    	}
     	}
-    	return tweets;
+    	return tweets;    
     }
     
+    public void finish_this (String search_results) throws JSONException{
+    	ArrayList<Tweet> tweet_array = finish_search(search_results);
+    	//add tweet array to listview here
+    }
 }

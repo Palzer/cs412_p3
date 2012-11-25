@@ -49,12 +49,7 @@ public class Main extends Activity  {
     public void send_search(String search_string)
     {
     	Log.v(TAG, "Search to send is: " + search_string);
-    	try {
-			((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
     }
     
     @Override
