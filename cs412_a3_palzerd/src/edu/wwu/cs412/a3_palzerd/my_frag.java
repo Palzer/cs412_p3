@@ -11,26 +11,34 @@ import org.json.simple.JSONArray;
 import org.json.JSONException;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 public class my_frag extends Fragment{
     private Main myActivity = null;
+    public int num_tweets = 1;
+    public int page_num = 1;
     int mCurCheckPosition = 0;
+    public String existing_search_string;
     
     public class Tweet {
     	public String username;
@@ -69,7 +77,7 @@ public class my_frag extends Fragment{
 		@Override
 		protected void onPostExecute(String result) {
 		    try {
-				finish_this(result);
+		    	finish_search(result);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -141,7 +149,7 @@ public class my_frag extends Fragment{
     public View onCreateView(LayoutInflater myInflater, ViewGroup container, Bundle icicle) {
     	Log.v(Main.TAG, "in TitlesFragment onCreateView. container is " + container);
     	View view = myInflater.inflate(R.layout.fragment_ui, container);
-    	
+    	myActivity = (Main) super.getActivity();
     	setOnClickListeners(view);
     	return view;
     	//return super.onCreateView(myInflater, container, icicle);
@@ -160,18 +168,14 @@ public class my_frag extends Fragment{
     	}
         super.onActivityCreated(icicle);
 
-        // Populate list with our static array of titles.
-               
-        ListView lv = (ListView) getView().findViewById(R.id.listView1);
-        
-        lv.setAdapter(new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1,
-                Shakespeare.TITLES));
-        
-        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        lv.setSelection(mCurCheckPosition);
-
-        //myActivity.showDetails(mCurCheckPosition);
+        Spinner spinner = (Spinner) getView().findViewById(R.id.num_tweet_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(myActivity,
+                R.array.rpp_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setOnItemSelectedListener(my_spinner_listener);
+        spinner.setAdapter(adapter);
     }
 
     @Override
@@ -239,14 +243,15 @@ public class my_frag extends Fragment{
 	    	{
 	    	case R.id.search_button:
 	    		Log.w(Main.TAG, "Firing Search.");
+	    		page_num = 1;
 	    		FragmentManager fm = getFragmentManager();
 	    		search_diag my_search_diag = new search_diag();
 	    		my_search_diag.show(fm, "search frag");
-	    	//	submitLoginInfo();
 	    		break;
 	    	case R.id.more_button:
 	    		Log.w(Main.TAG, "Firing More.");
-	    	//	createAccount();
+	    		page_num = page_num + 1;
+	    		do_search(existing_search_string,page_num);
 	    		break;
 	    	default:
 	    		Log.w(Main.TAG, "Firing unimplemented button event.");
@@ -254,16 +259,29 @@ public class my_frag extends Fragment{
 	    }
     };
     
-    public void do_search(String search_string){
+    OnItemSelectedListener my_spinner_listener = new OnItemSelectedListener() {
+	    public void onItemSelected(AdapterView<?> parent, View view, int position,
+				long id) {
+			Log.v(Main.TAG,"item was selected from list: " + parent.getItemAtPosition(position).toString());
+			num_tweets = Integer.parseInt(parent.getItemAtPosition(position).toString());
+		}
+
+		public void onNothingSelected(AdapterView<?> arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+    };
+    
+    public void do_search(String search_string, int page){
     	Log.w(Main.TAG, "Going to search twitter with: " + search_string);
-    	String search_url = "http://search.twitter.com/search.json?q=@" + search_string;
+    	String search_url = "http://search.twitter.com/search.json?q=@" + search_string + "&rpp=" + num_tweets + "&page=" + page;
     	Log.w(Main.TAG, "Going to search twitter with url: " + search_url);
     	search task = new search();    	
     	task.execute(new String[] {search_url});
     	
     }
     
-    public ArrayList<Tweet> finish_search (String responseBody) throws JSONException{
+    public void finish_search (String responseBody) throws JSONException{
     	Log.w(Main.TAG, "Going to finish search with response");
     	ArrayList <Tweet> tweets = new ArrayList <Tweet>();
     	
@@ -271,9 +289,9 @@ public class my_frag extends Fragment{
     	JSONParser parser = new JSONParser();
     	
     	try {
-		Log.v("TEST","going to parse results from response: " + responseBody);
+		Log.v("TEST","going to parse results from response");
     	  Object obj = parser.parse(responseBody);
-    	  Log.v("TEST","going to put results in jsonobject from " + obj);
+    	  Log.v("TEST","going to put results in jsonobject");
     	  jsonObject = (JSONObject) obj;
     	}catch(Exception ex){
     	  Log.v("TEST","Exception: " + ex.getMessage());
@@ -299,7 +317,6 @@ public class my_frag extends Fragment{
 	    	while (go){
 	    		try{
 	    		   JSONObject t = (JSONObject) arr.get(i);
-	    		   Log.v("TESTLOOP","Element is: " + t);
 	    		   Tweet tweet = new Tweet(
 	    		     t.get("from_user").toString(),
 	    		     t.get("text").toString(),
@@ -313,11 +330,18 @@ public class my_frag extends Fragment{
 	    		}
 	    	}
     	}
-    	return tweets;    
-    }
-    
-    public void finish_this (String search_results) throws JSONException{
-    	ArrayList<Tweet> tweet_array = finish_search(search_results);
-    	//add tweet array to listview here
+    	Log.v(Main.TAG,"size of tweet array is: " + tweets.size());
+    	if (tweets.size() > 0){   		
+	    	ListView lv = (ListView) getView().findViewById(R.id.listView1);
+	
+	        lv.setAdapter(new MyArrayAdapter(getActivity(),tweets));
+	        getView().findViewById(R.id.more_button).setVisibility(0);
+    	}
+    	else{
+    		getView().findViewById(R.id.more_button).setVisibility(4);
+    		Toast toast = Toast.makeText(myActivity, "No more Tweets to display", Toast.LENGTH_LONG);
+    		toast.setGravity(Gravity.TOP, 0, 0);
+    		toast.show();
+    	}
     }
 }

@@ -18,7 +18,6 @@ import android.util.Log;
 
 public class Main extends Activity  {
 	public static final String TAG = "Mini Twitter";
-	public int num_tweets = 25;
 
     public void onCreate(Bundle savedInstanceState) {
 		Log.v(TAG, "in MainActivity onCreate");
@@ -49,7 +48,8 @@ public class Main extends Activity  {
     public void send_search(String search_string)
     {
     	Log.v(TAG, "Search to send is: " + search_string);
-    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string);
+    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).existing_search_string = search_string;
+    	((my_frag) getFragmentManager().findFragmentById(R.id.my_frag)).do_search(search_string,1);
     }
     
     @Override

@@ -3,10 +3,16 @@
  android:layout_height="wrap_content"
  android:gravity="left|center"
  android:layout_width="wrap_content"
- android:paddingBottom="5dp"
- android:paddingTop="5dp"
- android:paddingLeft="5dp">
+ android:paddingBottom="5px"
+ android:paddingTop="5px"
+ android:paddingLeft="5px">
  
+  <ImageView
+   android:id="@+id/twit_img"
+   android:layout_width="wrap_content"
+   android:layout_height="fill_parent"
+   android:layout_marginRight="6dip"
+   android:src="@drawable/ic_launcher" />
   <LinearLayout
    android:orientation="vertical"
    android:layout_width="0dip"
@@ -19,7 +25,7 @@
     <TextView android:id="@+id/twit_message"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginLeft="10dp"
+     android:layout_marginLeft="10px"
      android:textColor="#0099CC"/>
   </LinearLayout>
 </LinearLayout>
