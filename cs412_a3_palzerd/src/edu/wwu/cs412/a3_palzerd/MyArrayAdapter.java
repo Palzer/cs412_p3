@@ -1,5 +1,7 @@
 package edu.wwu.cs412.a3_palzerd;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -24,22 +26,38 @@ public class MyArrayAdapter extends ArrayAdapter<Tweet>{
 	private final Context context;
 	private final List<Tweet> tweets;
 	
-	private class download_img extends AsyncTask<String,Void,Bitmap> {
-
-		@Override
-		protected Bitmap doInBackground(String... params) {
-			try {
-			    URL url = new URL(params[0]);
-			    return BitmapFactory.decodeStream(url.openConnection().getInputStream());
-			  }
-			  catch(Exception ex) {
-				  Log.v("Hey","the exeption is: " + ex);
-				  return null;}
-		}
+	class load_img extends AsyncTask<Object, Void, Bitmap> {
+		
+		private ImageView imageview;
+		private String image_url;
 		
 		@Override
-		protected void onPostExecute(Bitmap result) {
+		protected Bitmap doInBackground(Object... params) {
+			imageview = (ImageView) params[0];			
+			image_url = imageview.getTag().toString();
+			Bitmap bitmap = null;
+			URL bitmap_url = null;
+			try {
+				bitmap_url = new URL(image_url);
+			} catch (MalformedURLException e) {
+				Log.v("Load","cannot get bitmap_url from image_url");
+			}
+		    try {
+				return BitmapFactory.decodeStream(bitmap_url.openConnection().getInputStream());
+			} catch (IOException e) {
+				Log.v("Load","cannot get image from bitmap_url");
+			}
+			return bitmap; 
 		}
+		@Override
+        protected void onPostExecute(Bitmap result) {
+            if(result != null && imageview != null){
+                imageview.setVisibility(View.VISIBLE);
+                imageview.setImageBitmap(result);
+            }else{
+                imageview.setVisibility(View.GONE);
+            }
+        }
 	}
 	
 
@@ -64,9 +82,8 @@ public class MyArrayAdapter extends ArrayAdapter<Tweet>{
 		if (tweet != null){
 			userView.setText(tweet.username);
 			msgView.setText(tweet.message);
-			download_img task = new download_img();
-			
-	    	task.execute(new String[] {tweet.img_url});
+			imageView.setTag(tweet.img_url);
+			new load_img().execute(imageView);
 		}
 		return elem;
 	}
